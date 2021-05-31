@@ -32,6 +32,7 @@ class Dataset_(dataset.Dataset):
                 idt_files = torch.load(idt_pack)
                 img_paths = idt_files['img_paths']
                 aud_feats = idt_files['audio_features']
+                print("aud_feats", len(aud_feats))
                 lands = idt_files['lands']
                 poses = idt_files['poses']
                 eyes = idt_files['eyes']

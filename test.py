@@ -28,6 +28,7 @@ if mode == 0:
             opt.aud_idt = idt2
             print('{} --> {} [{}/{}]'.format(idt2, idt1, idx1*len(idts1)+idx2+1, len(idts1) * len(idts1)))
             dataloader = Dataset_(opt)
+            break
             dataloader = torch.utils.data.DataLoader(dataloader, batch_size=1, num_workers=1)
             trainer = Trainer_(opt)
             trainer.run(dataloader)
