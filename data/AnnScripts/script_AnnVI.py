@@ -105,7 +105,7 @@ def feature_extraction_AnnVI(video_file, audio_file, label_file, out_path, img_s
             lands.append(lands_all['{}'.format(cnt)])
             poses.append(poses_all['{}'.format(cnt)])
             eyes.append(eyes_all['{}'.format(cnt)])
-            cnt += 1e
+            cnt += 1
     ratio = 0.9
     length = len(img_paths)
     length_train = int(length * ratio)

@@ -53,6 +53,7 @@ class Dataset_(dataset.Dataset):
                    'woman1': '261.jpg', 'woman2': '1932.jpg', 'woman3': '86.jpg'}
 
         self.data2 = self.find_ref(idt2ref[self.ref_idt], self.data_all[self.ref_idt])
+        print(self.data_all["man1"])
 
     def find_ref(self, img_name, data_all):
         for data_ in data_all:
