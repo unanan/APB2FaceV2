@@ -194,6 +194,6 @@ def count_frames(dataroot):
 
 
 if __name__ == '__main__':
-    dataroot = '/media/zhangzjn/datasets/AnnTest/'
+    dataroot = '/usr/stable/apb/raw/liza/'
     main_AnnVI(dataroot)
     # count_frames(dataroot)
