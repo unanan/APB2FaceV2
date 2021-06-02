@@ -59,10 +59,9 @@ class InferenceDataset(Dataset):
         ])
 
         self.all_aud_feat, self.all_pose, self.all_eye = self.extract_features(ref_video_path)
-        self.target_img_paths = self.generate_apb_output_images(opt, apb_vcharactor_name)
-        self.target_img_paths = self.target_img_paths[:len(self)]
-        print(f"self.target_img_paths: {self.target_img_paths}")
-        
+        self.target_img_abs_paths = self.generate_apb_output_images(opt, apb_vcharactor_name)
+        self.target_img_abs_paths = self.target_img_abs_paths[:len(self)]
+
     def extract_pose_eye(self, images) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
         poses, eyes = [], []
         for image in images:
@@ -120,16 +119,20 @@ class InferenceDataset(Dataset):
         idt_files = torch.load(idt_pack)
         img_paths = idt_files['img_paths']
 
-        scale = 1.0 * len(self) / len(img_paths)
+        img_abs_paths = []
+        for img_path in img_paths:
+            img_abs_paths.append(f"{idt_path}/{img_path[0]}")
+
+        scale = 1.0 * len(self) / len(img_abs_paths)
         if scale > 1:
             scale = int(math.ceil(scale))
-            img_paths *= scale
+            img_abs_paths *= scale
 
-        return img_paths
+        return img_abs_paths
 
 
     def __getitem__(self, index):
-        img = Image.open(self.target_img_paths[index]).convert('RGB')
+        img = Image.open(self.target_img_abs_paths[index]).convert('RGB')
         img = self.transforms_image(img)
 
         return self.all_aud_feat[index], self.all_pose[index], self.all_eye[index], img
