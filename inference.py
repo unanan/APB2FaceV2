@@ -46,6 +46,13 @@ def init_G(opt, device):
 
 class InferenceDataset(Dataset):
     def __init__(self, opt, ref_video_path: str, apb_vcharactor_name: str):
+        self.fps = cv2.VideoCapture(ref_video_path).get(cv2.CAP_PROP_FPS)
+        self.n_fft = 2048  # 44100/30 1470
+        self.hop_length = 512  # 44100/60 735
+        self.n_mfcc = 20
+        self.sr = 44100
+        self.win_size = 64
+
         self.transforms_image = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -54,13 +61,6 @@ class InferenceDataset(Dataset):
         self.all_aud_feat, self.all_pose, self.all_eye = self.extract_features(ref_video_path)
         self.target_img_paths = self.generate_apb_output_images(opt, apb_vcharactor_name)
         self.target_img_paths = self.target_img_paths[:len(self)]
-
-        self.fps = cv2.VideoCapture(ref_video_path).get(cv2.CAP_PROP_FPS)
-        self.n_fft = 2048  # 44100/30 1470
-        self.hop_length = 512  # 44100/60 735
-        self.n_mfcc = 20
-        self.sr = 44100
-        self.win_size = 64
 
     def extract_pose_eye(self, images) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
         poses, eyes = [], []
