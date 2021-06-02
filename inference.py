@@ -61,7 +61,8 @@ class InferenceDataset(Dataset):
         self.all_aud_feat, self.all_pose, self.all_eye = self.extract_features(ref_video_path)
         self.target_img_paths = self.generate_apb_output_images(opt, apb_vcharactor_name)
         self.target_img_paths = self.target_img_paths[:len(self)]
-
+        print(f"self.target_img_paths: {self.target_img_paths}")
+        
     def extract_pose_eye(self, images) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
         poses, eyes = [], []
         for image in images:
