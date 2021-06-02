@@ -12,7 +12,7 @@ import torch
 
 
 def split_video(video_file, label_file, out_path):
-    labels = [[float(l_) for l_ in l.strip().split()]for l in open(label_file, 'r').readlines()]
+    labels = [[float(l_) for l_ in l.strip().split()] for l in open(label_file, 'r').readlines()]
     out_path = os.path.join(out_path, 'image')
     if not os.path.exists(out_path):
         os.mkdir(out_path)
@@ -80,7 +80,6 @@ def feature_extraction_AnnVI(video_file, audio_file, label_file, out_path, img_s
         poses_all[name.split('.')[0]] = pose
         eyes_all[name.split('.')[0]] = eye
         # land = np.array(land).astype(np.float64)
-
 
     labels = [[float(l_) for l_ in l.strip().split()] for l in open(label_file, 'r').readlines()]
     img_paths = []
