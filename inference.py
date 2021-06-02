@@ -94,11 +94,12 @@ class InferenceDataset(Dataset):
     def split_video(self, video_path):
         pil_images = []
         cap = cv2.VideoCapture(video_path)
-        ret = True
+        ret, img = cap.read()
         while ret:
-            ret, img = cap.read()
-            print(ret)
             pil_images.append(Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)))
+            ret, img = cap.read()
+        else:
+            print("Wrong")
 
         audio_path = os.path.splitext(video_path)[0] + ".wav"
         os.system(f"ffmpeg -i {video_path} -ab 160k -ac 2 -ar 44100  -vn {audio_path}")
@@ -182,7 +183,7 @@ def inference(ref_video_path: str, target_video_path: str, output_video_path: st
 
 
 if __name__ == '__main__':
-    ref_video_path = "/tmp/result_18s.mp4"
+    ref_video_path = "/usr/stable/apb/raw/liza/video/result_18s.mp4"
     target_video_path = ""
     output_video_path = "/tmp/result_18s_apb.mp4"
 
