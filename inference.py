@@ -1,17 +1,26 @@
-from util.options import get_opt
-from trainer.Demo_l2face_trainer import Trainer_
+import numpy as np
+import cv2
+from PIL import Image
+import math
 import torch
-from data.Demo_ann import Dataset_
+from torch.utils.data.dataset import Dataset
+import torchvision.transforms as transforms
 
-def init_A(data, img_size):
+from util.options import get_opt
+from model.audio_net import AudioNet
+from model.NAS_GAN import NAS_GAN
+from util.net_util import init_net, print_networks
+
+
+def init_A(opt, device):
     netA = AudioNet()
-    netA.load_state_dict(torch.load('model/pretrained/{}_best_{}.pth'.format(data, img_size),
+    netA.load_state_dict(torch.load('model/pretrained/{}_best_{}.pth'.format(opt.data, opt.img_size),
                                          map_location={'cuda:0': 'cuda:0'})['audio_net'])
-    netA.to(self.device)
+    netA.to(device)
     return netA
 
 
-def init_G():
+def init_G(opt, device):
     layers = 9
     width_mult_list = [4. / 12, 6. / 12, 8. / 12, 10. / 12, 1.]
     width_mult_list_sh = [4 / 12, 6. / 12, 8. / 12, 10. / 12, 1.]
@@ -23,16 +32,58 @@ def init_G():
     if opt.resume:
         checkpoint = torch.load(
             '{}/{}_{}_G.pth'.format(opt.logdir, opt.resume_epoch if opt.resume_epoch > -1 else 'latest', opt.img_size),
-            map_location=self.device)
+            map_location=device)
         netG.load_state_dict(checkpoint['netG'])
     netG.eval()
     return netG
 
 
-def write_video():
-    pass
+class InferenceDataset(Dataset):
+    def __init__(self, opt, ref_video_path: str, apb_vcharactor_name: str):
+        self.transforms_image = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+        self.all_aud_feat, self.all_pose, self.all_eye = self.extract_features(ref_video_path)
+        self.target_img_paths = self.generate_apb_output_images(opt, apb_vcharactor_name)
+        self.target_img_paths = self.target_img_paths[:len(self)]
 
-def inference(audio_path, output_video_path):
+    def extract_features(self, video_path):
+        aud_feat, pose, eye = None, None, None #TODO
+        aud_feat = torch.tensor(aud_feat).unsqueeze(dim=0)
+        pose = torch.tensor(pose)
+        eye = torch.tensor(eye)
+        return aud_feat, pose, eye
+
+    def generate_apb_output_images(self, opt, apb_vcharactor_name: str) -> list:
+        idt_path = '{}/{}'.format(opt.data_root, apb_vcharactor_name)
+        idt_pack = '{}/{}_test.t7'.format(idt_path, opt.img_size)
+        idt_files = torch.load(idt_pack)
+        img_paths = idt_files['img_paths'] #TODO: type
+
+        scale = 1.0 * len(self) / len(img_paths)
+        if scale > 1:
+            scale = int(math.ceil(scale))
+            img_paths *= scale
+
+        return img_paths
+
+
+    def __getitem__(self, index):
+        img = Image.open(self.target_img_paths[index]).convert('RGB')
+        img = self.transforms_image(img)
+
+        return self.all_aud_feat[index], self.all_pose[index], self.all_eye[index], img
+
+    def __len__(self):
+        return self.all_aud_feat.shape[0]
+
+
+# def generate_output_images(target_video_path: str, output_num: int) -> list:
+#     return
+
+
+def inference(ref_video_path: str, target_video_path: str, output_video_path: str):
     opt = get_opt()
     opt.data = 'AnnVI'
     opt.data_root = '/usr/stable/apb/raw/AnnVI/feature'
@@ -42,29 +93,44 @@ def inference(audio_path, output_video_path):
     opt.logdir = '{}/{}'.format(opt.checkpoint, opt.resume_name)
     opt.resume_epoch = -1
     opt.gpus = [0]
-    opt.results_dir = '{}/results/{}'.format(opt.logdir, mode)
+    opt.results_dir = '{}/results/'.format(opt.logdir)
     opt.video_repeat_times = 5
     opt.aud_counts = 300
+    device = torch.device('cuda:{}'.format(opt.gpus[0])) if opt.gpus[0] > -1 else torch.device('cpu')
+    apb_vcharactor_name = "man1"
 
-    netA = init_A(data, img_size, gpus)
-    netG = init_G()
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    video_writer = cv2.VideoWriter(output_video_path, fourcc, 25.0, (opt.img_size, opt.img_size))
 
+    netA = init_A(opt, device)
+    netG = init_G(opt, device)
+
+    dataset = InferenceDataset(opt, ref_video_path, apb_vcharactor_name)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, num_workers=1)
 
     for batch_idx, test_data in enumerate(dataloader):
-        aud_feat1 = torch.tensor(aud_feat1).unsqueeze(dim=0)
-        aud_feat1.to(self.device)
+        # feed the input
+        aud_feat, pose, eye, real_img = test_data
+        aud_feat = aud_feat.to(device)
+        pose = pose.to(device)
+        eye = eye.to(device)
+        real_img = real_img.to(device)
 
+        # forward
+        latent, landmark = netA(aud_feat, pose, eye)
+        fake_img = netG(real_img, latent)
 
-        latent, landmark = netA(self.aud_feat1, self.pose1, self.eye1)
-        self.img1_fake = netG(self.img2, latent)
-        img1_fake = self.img1_fake.data[0].cpu().numpy()
-        img1_fake_numpy = (np.transpose(img1_fake, (1, 2, 0)) + 1) / 2.0 * 255.0
-        img1_fake_numpy = cv2.cvtColor(img1_fake_numpy, cv2.COLOR_BGR2RGB)
-        img1_fake_numpy = img1_fake_numpy.astype(np.uint8)
+        # post-processing
+        fake_img = fake_img.data[0].cpu().numpy()
+        fake_img_numpy = (np.transpose(fake_img, (1, 2, 0)) + 1) / 2.0 * 255.0
+        fake_img_numpy = cv2.cvtColor(fake_img_numpy, cv2.COLOR_BGR2RGB)
+        fake_img_numpy = fake_img_numpy.astype(np.uint8)
+        video_writer.write(fake_img_numpy)
 
 
 if __name__ == '__main__':
-    audio_path = "/tmp/A0008_1.wav"
-    output_video_path = "/tmp/A0008_1_apb.mp4"
+    ref_video_path = "/tmp/result_18s.mp4"
+    target_video_path = ""
+    output_video_path = "/tmp/result_18s_apb.mp4"
 
-    inference(audio_path, output_video_path)
+    inference(ref_video_path, target_video_path, output_video_path)

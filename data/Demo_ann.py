@@ -32,7 +32,6 @@ class Dataset_(dataset.Dataset):
                 idt_files = torch.load(idt_pack)
                 img_paths = idt_files['img_paths']
                 aud_feats = idt_files['audio_features']
-                print("aud_feats", len(aud_feats))
                 lands = idt_files['lands']
                 poses = idt_files['poses']
                 eyes = idt_files['eyes']
@@ -55,6 +54,7 @@ class Dataset_(dataset.Dataset):
 
         self.data2 = self.find_ref(idt2ref[self.ref_idt], self.data_all[self.ref_idt])
         print(self.data_all["man1"])
+
 
     def find_ref(self, img_name, data_all):
         for data_ in data_all:
