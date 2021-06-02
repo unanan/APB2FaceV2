@@ -97,6 +97,7 @@ class InferenceDataset(Dataset):
         ret = True
         while ret:
             ret, img = cap.read()
+            print(ret)
             pil_images.append(Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)))
 
         audio_path = os.path.splitext(video_path)[0] + ".wav"
