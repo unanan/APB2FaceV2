@@ -90,10 +90,8 @@ class InferenceDataset(Dataset):
             if start_index<0: start_index=0
             end_index = c_count + self.win_size // 2
             audio_feat = f_mfcc_all[:, start_index: end_index].transpose(1, 0)
-            print(f"audio_feat: {torch.from_numpy(audio_feat).unsqueeze(dim=0).shape}")
             audio_features.append(torch.from_numpy(audio_feat).unsqueeze(dim=0)) #.unsqueeze(dim=0)
 
-        print(len(audio_features), audio_features[0].shape)
         return audio_features
 
     def split_video(self, video_path):
