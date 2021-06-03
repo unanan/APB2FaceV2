@@ -87,9 +87,10 @@ class InferenceDataset(Dataset):
         for cnt in range(image_num):
             c_count = int(cnt / self.fps * rate / self.hop_length)
             audio_feat = f_mfcc_all[:, c_count - self.win_size // 2: c_count + self.win_size // 2].transpose(1, 0)
+            print(f"audio_feat: {audio_feat.shape}")
             audio_features.append(torch.from_numpy(audio_feat)) #.unsqueeze(dim=0)
 
-        print(len(audio_features), audio_features[0].shape)
+        print(len(audio_features))
         return audio_features
 
     def split_video(self, video_path):
