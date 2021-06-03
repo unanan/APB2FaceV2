@@ -86,8 +86,10 @@ class InferenceDataset(Dataset):
         audio_features = []
         for cnt in range(image_num):
             c_count = int(cnt / self.fps * rate / self.hop_length)
-            print(c_count - self.win_size // 2, c_count + self.win_size // 2)
-            audio_feat = f_mfcc_all[:, c_count - self.win_size // 2: c_count + self.win_size // 2].transpose(1, 0)
+            start_index = c_count - self.win_size // 2
+            if start_index<0: start_index=0
+            end_index = c_count + self.win_size // 2
+            audio_feat = f_mfcc_all[:, start_index: end_index].transpose(1, 0)
             print(f"audio_feat: {torch.from_numpy(audio_feat).unsqueeze(dim=0).shape}")
             audio_features.append(torch.from_numpy(audio_feat).unsqueeze(dim=0)) #.unsqueeze(dim=0)
 
