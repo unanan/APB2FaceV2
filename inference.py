@@ -83,13 +83,19 @@ class InferenceDataset(Dataset):
         f_mfcc_delta2 = psf.base.delta(f_mfcc_delta, 2)
         f_mfcc_all = np.concatenate((f_mfcc, f_mfcc_delta, f_mfcc_delta2), axis=0)
         print(f"f_mfcc_all: {f_mfcc_all.shape}")
+
         audio_features = []
         for cnt in range(image_num):
             c_count = int(cnt / self.fps * rate / self.hop_length)
             start_index = c_count - self.win_size // 2
-            if start_index<0: start_index=0
             end_index = c_count + self.win_size // 2
-            audio_feat = f_mfcc_all[:, start_index: end_index].transpose(1, 0)
+            if start_index<0:
+                start_index=0
+                pad_f_mfcc = np.repeat(f_mfcc_all, repeats=[-start_index]+[1]*(f_mfcc_all.shape[1]-1), axis=1)
+                audio_feat = f_mfcc_all[:, start_index: end_index]
+                audio_feat = np.hstack((pad_f_mfcc, audio_feat)).transpose(1, 0)
+            else:
+                audio_feat = f_mfcc_all[:, start_index: end_index].transpose(1, 0)
             audio_features.append(torch.from_numpy(audio_feat).unsqueeze(dim=0)) #.unsqueeze(dim=0)
 
         return audio_features
@@ -102,7 +108,7 @@ class InferenceDataset(Dataset):
             pil_images.append(Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)))
             ret, img = cap.read()
         else:
-            print("Wrong")
+            print("Break")
 
         audio_path = os.path.splitext(video_path)[0] + ".wav"
         # os.system(f"ffmpeg -i {video_path} -ab 160k -ac 2 -ar 44100  -vn {audio_path}")
