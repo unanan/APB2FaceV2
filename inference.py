@@ -82,7 +82,7 @@ class InferenceDataset(Dataset):
         f_mfcc_delta = psf.base.delta(f_mfcc, 2)
         f_mfcc_delta2 = psf.base.delta(f_mfcc_delta, 2)
         f_mfcc_all = np.concatenate((f_mfcc, f_mfcc_delta, f_mfcc_delta2), axis=0)
-
+        print(f"f_mfcc_all: {f_mfcc_all.shape}")
         audio_features = []
         for cnt in range(image_num):
             c_count = int(cnt / self.fps * rate / self.hop_length)
