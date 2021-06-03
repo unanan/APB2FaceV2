@@ -103,7 +103,7 @@ class InferenceDataset(Dataset):
             print("Wrong")
 
         audio_path = os.path.splitext(video_path)[0] + ".wav"
-        os.system(f"ffmpeg -i {video_path} -ab 160k -ac 2 -ar 44100  -vn {audio_path}")
+        # os.system(f"ffmpeg -i {video_path} -ab 160k -ac 2 -ar 44100  -vn {audio_path}")
         return audio_path, pil_images
 
     def extract_features(self, video_path):
