@@ -87,7 +87,7 @@ class InferenceDataset(Dataset):
         for cnt in range(image_num):
             c_count = int(cnt / self.fps * rate / self.hop_length)
             audio_feat = f_mfcc_all[:, c_count - self.win_size // 2: c_count + self.win_size // 2].transpose(1, 0)
-            audio_features.append(torch.from_numpy(audio_feat).unsqueeze(dim=0))
+            audio_features.append(torch.from_numpy(audio_feat)) #.unsqueeze(dim=0)
 
         print(len(audio_features), audio_features[0].shape)
         return audio_features
@@ -103,7 +103,7 @@ class InferenceDataset(Dataset):
             print("Wrong")
 
         audio_path = os.path.splitext(video_path)[0] + ".wav"
-        # os.system(f"ffmpeg -i {video_path} -ab 160k -ac 2 -ar 44100  -vn {audio_path}")
+        os.system(f"ffmpeg -i {video_path} -ab 160k -ac 2 -ar 44100  -vn {audio_path}")
         return audio_path, pil_images
 
     def extract_features(self, video_path):
@@ -189,7 +189,7 @@ def inference(ref_video_path: str, target_video_path: str, output_video_path: st
 
 
 if __name__ == '__main__':
-    ref_video_path = "/usr/stable/apb/raw/liza/video/result_18s.mp4"
+    ref_video_path = "/usr/stable/apb/raw/liza/video/8896.mp4"
     target_video_path = ""
     output_video_path = "/tmp/result_18s_apb.mp4"
 
