@@ -191,6 +191,6 @@ def inference(ref_video_path: str, target_video_path: str, output_video_path: st
 if __name__ == '__main__':
     ref_video_path = "/usr/stable/apb/raw/liza/video/8896.mp4"
     target_video_path = ""
-    output_video_path = "/tmp/result_18s_apb.mp4"
+    output_video_path = "/tmp/8896_apb.mp4"
 
     inference(ref_video_path, target_video_path, output_video_path)
