@@ -91,7 +91,6 @@ class InferenceDataset(Dataset):
             end_index = c_count + self.win_size // 2
             if start_index<0:
                 start_index=0
-                print(len([self.win_size-end_index]+[1]*(f_mfcc_all.shape[1]-1)), [self.win_size-end_index]+[1]*(f_mfcc_all.shape[1]-1))
                 pad_f_mfcc = np.repeat(f_mfcc_all, repeats=[self.win_size-end_index]+[1]*(f_mfcc_all.shape[1]-1), axis=1)
                 audio_feat = pad_f_mfcc[:, start_index: end_index].transpose(1, 0)
                 # audio_feat = np.hstack((pad_f_mfcc, audio_feat))
