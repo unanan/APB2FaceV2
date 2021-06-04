@@ -70,7 +70,7 @@ class InferenceDataset(Dataset):
                 raise ValueError
 
             pose = [float(roll)/180, float(pitch)/180, float(yaw)/180]
-            eye = [0.3502,0.3707] # average value in testset #TODO eye value not real
+            eye = [0.3502, 0.3707] # average value in testset #TODO eye value not real
 
             poses.append(torch.tensor(pose))
             eyes.append(torch.tensor(eye))
@@ -123,7 +123,7 @@ class InferenceDataset(Dataset):
         poses, eyes = self.extract_pose_eye(images)
         audio_features = self.extract_audio_feature(audio_path, len(images))
 
-        return audio_features, poses, poses
+        return audio_features, poses, eyes
 
     def generate_apb_output_images(self, opt, apb_vcharactor_name: str) -> list:
         idt_path = '{}/{}'.format(opt.data_root, apb_vcharactor_name)
