@@ -1,5 +1,7 @@
 import cv2
 import argparse
+from tqdm import tqdm
+import numpy as np
 
 def get_options():
     parser = argparse.ArgumentParser(description="Get specific options information in a command")
@@ -10,7 +12,7 @@ def get_options():
     return parser.parse_args()
 
 
-def write_video_frames(vframes_list, output_path):
+def write_video_frames(vframes_list: list, output_path):
     # Copy from w2l 3d
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     first_frame = vframes_list[0]
