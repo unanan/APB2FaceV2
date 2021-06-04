@@ -114,7 +114,7 @@ class InferenceDataset(Dataset):
             print("Break")
 
         audio_path = os.path.splitext(video_path)[0] + ".wav"
-        # os.system(f"ffmpeg -i {video_path} -ab 160k -ac 2 -ar 44100  -vn {audio_path}")
+        os.system(f"ffmpeg -i {video_path} -ab 160k -ac 2 -ar 44100  -vn {audio_path}")
         return audio_path, pil_images
 
     def extract_features(self, video_path):
@@ -200,8 +200,8 @@ def inference(ref_video_path: str, target_video_path: str, output_video_path: st
 
 
 if __name__ == '__main__':
-    ref_video_path = "/usr/stable/apb/raw/liza/video/8896.mp4"
+    ref_video_path = "/usr/stable/apb/raw/liza/video/c230.mp4"
     target_video_path = ""
-    output_video_path = "/tmp/8896_apb.mp4"
+    output_video_path = "/tmp/c230_apb.mp4"
 
     inference(ref_video_path, target_video_path, output_video_path)
