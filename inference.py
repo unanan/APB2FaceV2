@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 import cv2
 import os
@@ -92,6 +93,10 @@ class InferenceDataset(Dataset):
             if start_index<0:
                 start_index=0
                 repeat_pattern = [self.win_size-end_index]+[1]*(f_mfcc_all.shape[1]-1)
+                pad_f_mfcc_all = np.repeat(f_mfcc_all, repeats=repeat_pattern, axis=1) # Padding with the first column
+                audio_feat = pad_f_mfcc_all[:, start_index: start_index+self.win_size].transpose(1, 0)
+            elif end_index>f_mfcc_all.shape[1]:
+                repeat_pattern = [1]*(f_mfcc_all.shape[1]-1) + [self.win_size+start_index-f_mfcc_all.shape[1]]
                 pad_f_mfcc_all = np.repeat(f_mfcc_all, repeats=repeat_pattern, axis=1) # Padding with the first column
                 audio_feat = pad_f_mfcc_all[:, start_index: start_index+self.win_size].transpose(1, 0)
             else:
@@ -200,6 +205,8 @@ def inference(ref_video_path: str, target_video_path: str, output_video_path: st
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ref_video_path")
     ref_video_path = "/usr/stable/apb/raw/liza/video/c230.mp4"
     target_video_path = ""
     output_video_path = "/tmp/c230_apb.mp4"
