@@ -97,8 +97,9 @@ class InferenceDataset(Dataset):
             else:
                 audio_feat = f_mfcc_all[:, start_index: end_index].transpose(1, 0)
 
+            audio_feat = torch.from_numpy(audio_feat).unsqueeze(dim=0)
             print(f"audio_feat: {audio_feat.shape}")
-            audio_features.append(torch.from_numpy(audio_feat).unsqueeze(dim=0)) #.unsqueeze(dim=0)
+            audio_features.append(audio_feat)
 
         return audio_features
 
