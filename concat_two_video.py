@@ -35,7 +35,8 @@ def main():
 
     concat_frames = []
     while ret_left and ret_right:
-        if left_frame.shape[0]*left_frame.shape[1]> right_frame.shape[0]*right_frame.shape[1]:
+        #Take the smaller one's size
+        if left_frame.shape[0]*left_frame.shape[1]< right_frame.shape[0]*right_frame.shape[1]:
             rsize = (int(right_frame.shape[1]*left_frame.shape[0]/right_frame.shape[0]), left_frame.shape[0])
             right_frame = cv2.resize(right_frame, rsize)
         else:
