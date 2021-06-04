@@ -53,6 +53,7 @@ def main():
     if not opt.audio_path:
         audio_path = os.path.splitext(opt.left_video_path)[0]+".wav"
         command = f"ffmpeg -i {opt.left_video_path} -vn -acodec copy {audio_path}"
+        command = f"ffmpeg -i {opt.left_video_path} -q:a 0 -map a {audio_path}"
         os.system(command)
     else:
         audio_path = opt.audio_path
