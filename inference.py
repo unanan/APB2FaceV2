@@ -96,7 +96,7 @@ class InferenceDataset(Dataset):
                 pad_f_mfcc_all = np.repeat(f_mfcc_all, repeats=repeat_pattern, axis=1) # Padding with the first column
                 audio_feat = pad_f_mfcc_all[:, start_index: start_index+self.win_size].transpose(1, 0)
             elif end_index>f_mfcc_all.shape[1]:
-                repeat_pattern = [1]*(f_mfcc_all.shape[1]) + [self.win_size+start_index-f_mfcc_all.shape[1]]
+                repeat_pattern = [1]*(f_mfcc_all.shape[1]-1) + [self.win_size+start_index-f_mfcc_all.shape[1]+1]
                 pad_f_mfcc_all = np.repeat(f_mfcc_all, repeats=repeat_pattern, axis=1) # Padding with the first column
                 print(f_mfcc_all, pad_f_mfcc_all)
                 audio_feat = pad_f_mfcc_all[:, start_index: start_index+self.win_size].transpose(1, 0)
@@ -212,5 +212,5 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
     target_video_path = ""
-    
+
     inference(opt.ref_video_path, target_video_path, opt.output_video_path)
