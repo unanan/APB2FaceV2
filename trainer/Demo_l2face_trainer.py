@@ -55,7 +55,7 @@ class Trainer_():
         video_ref = cv2.VideoWriter('{}/{}-{}-ref.avi'.format(save_dir, aud_idt, ref_idt), fourcc, 25.0, (img_size, img_size))
         video_aud = cv2.VideoWriter('{}/{}-{}-aud.avi'.format(save_dir, aud_idt, ref_idt), fourcc, 25.0, (img_size, img_size))
         for batch_idx, test_data in enumerate(dataloader):
-            print(test_data)
+            print(test_data[0].shape)
             self.set_input(test_data)
             self.forward()
             img1_fake = self.img1_fake.data[0].cpu().numpy()
