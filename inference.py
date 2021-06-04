@@ -93,7 +93,7 @@ class InferenceDataset(Dataset):
                 start_index=0
                 repeat_pattern = [self.win_size-end_index]+[1]*(f_mfcc_all.shape[1]-1)
                 pad_f_mfcc_all = np.repeat(f_mfcc_all, repeats=repeat_pattern, axis=1) # Padding with the first column
-                audio_feat = pad_f_mfcc_all[:, start_index: end_index].transpose(1, 0)
+                audio_feat = pad_f_mfcc_all[:, start_index: start_index+self.win_size].transpose(1, 0)
             else:
                 audio_feat = f_mfcc_all[:, start_index: end_index].transpose(1, 0)
 
