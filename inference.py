@@ -187,7 +187,7 @@ def inference(ref_video_path: str, target_video_path: str, output_video_path: st
         real_img = real_img.to(device)
 
         # forward
-        # print(aud_feat.shape, pose.shape, eye.shape)
+        print(aud_feat.shape, pose.shape, eye.shape)
         latent, landmark = netA(aud_feat, pose, eye)
         fake_img = netG(real_img, latent)
 
