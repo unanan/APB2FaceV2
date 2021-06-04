@@ -96,8 +96,9 @@ class InferenceDataset(Dataset):
                 pad_f_mfcc_all = np.repeat(f_mfcc_all, repeats=repeat_pattern, axis=1) # Padding with the first column
                 audio_feat = pad_f_mfcc_all[:, start_index: start_index+self.win_size].transpose(1, 0)
             elif end_index>f_mfcc_all.shape[1]:
-                repeat_pattern = [1]*(f_mfcc_all.shape[1]-1) + [self.win_size+start_index-f_mfcc_all.shape[1]]
+                repeat_pattern = [1]*(f_mfcc_all.shape[1]) + [self.win_size+start_index-f_mfcc_all.shape[1]]
                 pad_f_mfcc_all = np.repeat(f_mfcc_all, repeats=repeat_pattern, axis=1) # Padding with the first column
+                print(f_mfcc_all, pad_f_mfcc_all)
                 audio_feat = pad_f_mfcc_all[:, start_index: start_index+self.win_size].transpose(1, 0)
             else:
                 audio_feat = f_mfcc_all[:, start_index: end_index].transpose(1, 0)
@@ -206,9 +207,9 @@ def inference(ref_video_path: str, target_video_path: str, output_video_path: st
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ref_video_path")
-    ref_video_path = "/usr/stable/apb/raw/liza/video/c230.mp4"
-    target_video_path = ""
-    output_video_path = "/tmp/c230_apb.mp4"
+    parser.add_argument("--ref_video_path", "-r", dest="ref_video_path", default="/usr/stable/apb/raw/liza/video/c230.mp4")
+    parser.add_argument("--output_video_path", "-o", dest="output_video_path", default="/tmp/c230_apb.mp4")
 
-    inference(ref_video_path, target_video_path, output_video_path)
+    opt = parser.parse_args()
+
+    inference(opt.ref_video_path, target_video_path, opt.output_video_path)
