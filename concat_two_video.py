@@ -8,6 +8,7 @@ def get_options():
     parser = argparse.ArgumentParser(description="Get specific options information in a command")
     parser.add_argument("--left_video_path", "-l", dest="left_video_path", type=str, default="", help="Video path show on the left")
     parser.add_argument("--right_video_path", "-r", dest="right_video_path", type=str, default="", help="Video path show on the right")
+    parser.add_argument("--audio_path", "-a", dest="audio_path", type=str, default="", help="Audio path")
     parser.add_argument("--output_video_path", "-o", dest="output_video_path", type=str, default="", help="Output video path")
 
     return parser.parse_args()
@@ -49,9 +50,12 @@ def main():
     write_video_frames(concat_frames, "tmp.mp4")
 
     # Extract audio from left video #TODO
-    audio_path = os.path.splitext(opt.left_video_path)[0]+".wav"
-    command = f"ffmpeg -i {opt.left_video_path} -vn -acodec copy {audio_path}"
-    os.system(command)
+    if not opt.audio_path:
+        audio_path = os.path.splitext(opt.left_video_path)[0]+".wav"
+        command = f"ffmpeg -i {opt.left_video_path} -vn -acodec copy {audio_path}"
+        os.system(command)
+    else:
+        audio_path = opt.audio_path
 
     # Write audio to concatenated video
     command = 'ffmpeg -y -i {} -i {} -strict -2 -q:v 1 {}'.format(audio_path, "tmp.mp4", opt.output_video_path)
