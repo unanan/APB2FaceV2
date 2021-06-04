@@ -193,7 +193,7 @@ def inference(ref_video_path: str, target_video_path: str, output_video_path: st
         real_img = real_img.to(device)
 
         # forward
-        print(aud_feat.shape, pose.shape, eye.shape)
+        # print(aud_feat.shape, pose.shape, eye.shape)
         latent, landmark = netA(aud_feat, pose, eye)
         fake_img = netG(real_img, latent)
 
@@ -211,5 +211,6 @@ if __name__ == '__main__':
     parser.add_argument("--output_video_path", "-o", dest="output_video_path", default="/tmp/c230_apb.mp4")
 
     opt = parser.parse_args()
-
+    target_video_path = ""
+    
     inference(opt.ref_video_path, target_video_path, opt.output_video_path)
