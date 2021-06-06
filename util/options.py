@@ -20,7 +20,7 @@ def get_opt():
 
     # data
     parser.add_argument('--data', type=str, default='AnnVI', help='AnnVI | VoxCeleb2')
-    parser.add_argument('--data_root', type=str, default='/media/datasets/zhangzjn/Audio2Face/AnnVI/feature')
+    parser.add_argument('--data_root', type=str, default="/usr/stable/apb/raw/AnnVI/feature")
     parser.add_argument('--img_size', type=int, default=256, help='image size')
     parser.add_argument('--mode', type=str, default='train', help='train | test')
     # model
