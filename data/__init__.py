@@ -1,7 +1,6 @@
 import importlib
 import torch
 
-
 def get_dataset(opt):
     if opt.data in ['AnnVI', 'AnnXXX', 'Demo_wild']:
         if 'img' in opt.trainer:
