@@ -1,12 +1,8 @@
 import argparse
 import numpy as np
 import cv2
-import os
 from PIL import Image
-from typing import List, Tuple
 import math
-import librosa
-import python_speech_features as psf
 import torch
 from torch.utils.data.dataset import Dataset
 import torchvision.transforms as transforms
