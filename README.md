@@ -1,3 +1,9 @@
+### Fork from the original Repo; To run the train:
+```
+python trainv2.py
+```
+
+
 ## APB2FaceV2
 
 ![Python 3.7](https://img.shields.io/badge/python-3.7-green.svg?style=plastic) ![PyTorch 1.5.1](https://img.shields.io/badge/pytorch-1.5.1-green.svg?style=plastic)
