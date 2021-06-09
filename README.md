@@ -1,4 +1,16 @@
-### Fork from the original Repo; To run the train:
+### Fork from the original Repo
+##### Major modifications:
+```
+inference.py
+trainv2.py
+trainerv2/*
+datav2/*
+```
+##### Prepare data:
+```
+python datav2/prepare_data.py --video_folder [absolute folder path with multiple MP4s under it]
+```
+##### To run the train:
 ```
 python trainv2.py
 ```

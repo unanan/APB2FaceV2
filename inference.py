@@ -10,12 +10,12 @@ import python_speech_features as psf
 import torch
 from torch.utils.data.dataset import Dataset
 import torchvision.transforms as transforms
+from datav2.common import extract_features
 
 from util.options import get_opt
 from model.audio_net import AudioNet
 from model.NAS_GAN import NAS_GAN
 from util.net_util import init_net, print_networks
-from mlcandy.face_detection.valid_face_utils import get_angle_of_image
 
 
 def init_A(opt, device):
@@ -59,79 +59,17 @@ class InferenceDataset(Dataset):
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
 
-        self.all_aud_feat, self.all_pose, self.all_eye = self.extract_features(ref_video_path)
+        self.all_aud_feat, self.all_pose, self.all_eye = extract_features(
+            ref_video_path,
+            fps=self.fps,
+            win_size=self.win_size,
+            sr=self.sr,
+            n_mfcc=self.n_mfcc,
+            n_fft=self.n_fft,
+            hop_length=self.hop_length
+        )
         self.target_img_abs_paths = self.generate_apb_output_images(opt, apb_vcharactor_name)
         self.target_img_abs_paths = self.target_img_abs_paths[:len(self)]
-
-    def extract_pose_eye(self, images) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
-        poses, eyes = [], []
-        for image in images:
-            has_face, roll, pitch, yaw = get_angle_of_image(image) #TODO sequence
-            if not has_face:
-                raise ValueError
-
-            pose = [float(roll)/180, float(pitch)/180, float(yaw)/180]
-            eye = [0.3502, 0.3707] # average value in testset #TODO eye value not real
-
-            poses.append(torch.tensor(pose))
-            eyes.append(torch.tensor(eye))
-        return poses, eyes
-
-    def extract_audio_feature(self, audio_path, image_num) -> List[torch.Tensor]:
-        sig, rate = librosa.load(audio_path, sr=self.sr, duration=None)
-        f_mfcc = librosa.feature.mfcc(sig, rate, n_mfcc=self.n_mfcc, n_fft=self.n_fft, hop_length=self.hop_length)
-        f_mfcc_delta = psf.base.delta(f_mfcc, 2)
-        f_mfcc_delta2 = psf.base.delta(f_mfcc_delta, 2)
-        f_mfcc_all = np.concatenate((f_mfcc, f_mfcc_delta, f_mfcc_delta2), axis=0)
-        print(f"f_mfcc_all: {f_mfcc_all.shape}")
-
-        audio_features = []
-        for cnt in range(image_num):
-            c_count = int(cnt / self.fps * rate / self.hop_length)
-            start_index = c_count - self.win_size // 2
-            end_index = c_count + self.win_size // 2
-
-            # Reconstruct by me
-            if start_index<0:
-                start_index=0
-                repeat_pattern = [self.win_size-end_index]+[1]*(f_mfcc_all.shape[1]-1)
-                pad_f_mfcc_all = np.repeat(f_mfcc_all, repeats=repeat_pattern, axis=1) # Padding with the first column
-                audio_feat = pad_f_mfcc_all[:, start_index: start_index+self.win_size].transpose(1, 0)
-            elif end_index>f_mfcc_all.shape[1]:
-                repeat_pattern = [1]*(f_mfcc_all.shape[1]-1) + [self.win_size+start_index-f_mfcc_all.shape[1]+1]
-                pad_f_mfcc_all = np.repeat(f_mfcc_all, repeats=repeat_pattern, axis=1) # Padding with the first column
-                # print(f_mfcc_all, pad_f_mfcc_all)
-                audio_feat = pad_f_mfcc_all[:, start_index: start_index+self.win_size].transpose(1, 0)
-            else:
-                audio_feat = f_mfcc_all[:, start_index: end_index].transpose(1, 0)
-
-            audio_feat = torch.from_numpy(audio_feat).unsqueeze(dim=0)
-            # print(f"audio_feat: {audio_feat.shape}")
-            audio_features.append(audio_feat)
-
-        return audio_features
-
-    def split_video(self, video_path):
-        pil_images = []
-        cap = cv2.VideoCapture(video_path)
-        ret, img = cap.read()
-        while ret:
-            pil_images.append(Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)))
-            ret, img = cap.read()
-        else:
-            print("Break")
-
-        audio_path = os.path.splitext(video_path)[0] + ".wav"
-        os.system(f"ffmpeg -i {video_path} -ab 160k -ac 2 -ar 44100  -vn {audio_path}")
-        return audio_path, pil_images
-
-    def extract_features(self, video_path):
-        audio_path, images = self.split_video(video_path)
-
-        poses, eyes = self.extract_pose_eye(images)
-        audio_features = self.extract_audio_feature(audio_path, len(images))
-
-        return audio_features, poses, eyes
 
     def generate_apb_output_images(self, opt, apb_vcharactor_name: str) -> list:
         idt_path = '{}/{}'.format(opt.data_root, apb_vcharactor_name)
@@ -149,7 +87,6 @@ class InferenceDataset(Dataset):
             img_abs_paths *= scale
 
         return img_abs_paths
-
 
     def __getitem__(self, index):
         img = Image.open(self.target_img_abs_paths[index]).convert('RGB')
