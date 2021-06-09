@@ -3,11 +3,12 @@ import glob
 import argparse
 import cv2
 import torch
-from common import extract_features
+from datav2.common import extract_features
 
 def get_video_paths():
     parser = argparse.ArgumentParser(description="Prepare data")
     parser.add_argument("--video_folder", type=str, required=True,  help="absolute folder path with multiple MP4(s) under it")
+    parser.add_argument("--device",       type=int, default=1,      help="GPU device index")
 
     parser.add_argument("--n_fft",        type=int, default=2048,     help="n_fft")
     parser.add_argument("--hop_length",   type=int, default=512,      help="hop_length")
@@ -62,7 +63,7 @@ def process_video_into_folder_feature(data_path: dict, win_size, sr, n_mfcc, n_f
     # Save split images
     for idx, image in enumerate(pil_images):
         image.save(os.path.join(video_image_folder, f"{idx}.jpg"))
-
+        
     # # Save features in to folder "*/feature/" as AnnVI-like
     # # train dataset
     # img_paths_train = [img_paths[i] for i in index[:length_train]]
