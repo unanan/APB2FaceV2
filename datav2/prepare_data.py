@@ -3,7 +3,7 @@ import glob
 import argparse
 import cv2
 import torch
-from datav2.common import extract_features
+from common import extract_features
 
 def get_video_paths():
     parser = argparse.ArgumentParser(description="Prepare data")
