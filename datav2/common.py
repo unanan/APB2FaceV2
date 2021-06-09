@@ -74,7 +74,7 @@ def extract_audio_feature(audio_path, image_num, fps, win_size, sr, n_mfcc, n_ff
     return audio_features
 
 
-def extract_features(video_path: str, fps, win_size, sr, n_mfcc, n_fft, hop_length) -> Tuple[List[torch.Tensor], List[torch.Tensor], List[torch.Tensor]]:
+def extract_features(video_path: str, fps, win_size, sr, n_mfcc, n_fft, hop_length) -> Tuple[list, List[torch.Tensor], List[torch.Tensor], List[torch.Tensor]]:
     audio_path, pil_images = split_video(video_path)
 
     poses, eyes = extract_pose_eye(pil_images)
@@ -87,4 +87,4 @@ def extract_features(video_path: str, fps, win_size, sr, n_mfcc, n_fft, hop_leng
         n_fft=n_fft,
         hop_length=hop_length)
 
-    return audio_features, poses, eyes
+    return pil_images, audio_features, poses, eyes

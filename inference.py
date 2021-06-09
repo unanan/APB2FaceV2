@@ -55,7 +55,7 @@ class InferenceDataset(Dataset):
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
 
-        self.all_aud_feat, self.all_pose, self.all_eye = extract_features(
+        _, self.all_aud_feat, self.all_pose, self.all_eye = extract_features(
             ref_video_path,
             fps=self.fps,
             win_size=self.win_size,
