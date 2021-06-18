@@ -1,11 +1,6 @@
 ## module: APB2FaceV2
 #### Prepare data
 ```
-export HRNET_MODEL_FOLDER=/root/hrnet_models
-mkdir $HRNET_MODEL_FOLDER
-aws s3 cp s3://www.talkieselfie.xyz/HRNet/HR18-WFLW.pth $HRNET_MODEL_FOLDER
-aws s3 cp s3://www.talkieselfie.xyz/HRNet/Resnet50_Final.pth $HRNET_MODEL_FOLDER
-
 export APB_VIDEO_FOLDER=/root/apb_videos
 python datav2/prepare_data.py --video_folder $APB_VIDEO_FOLDER --rf_model_path $HRNET_MODEL_FOLDER/Resnet50_Final.pth --lm_model_path $HRNET_MODEL_FOLDER/HR18-WFLW.pth
 ```
