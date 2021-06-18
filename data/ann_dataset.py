@@ -90,9 +90,9 @@ class Dataset_(dataset.Dataset):
             img2 = Image.open(img_path2).convert('RGB')
             img1 = self.transforms_image(img1)
             img2 = self.transforms_image(img2)
-            aud_feat1 = torch.tensor(aud_feat1).unsqueeze(dim=0)
-            pose1 = torch.tensor(pose1)
-            eye1 = torch.tensor(eye1)
+            #aud_feat1 = torch.tensor(aud_feat1)# .unsqueeze(dim=0) TODO: remove # when using AnnVI
+            # pose1 = torch.tensor(pose1)
+            # eye1 = torch.tensor(eye1)
         else:
             if self.own_audio:
                 index_data1 = self.idt2idxes[self.idt_test][index]
@@ -103,9 +103,9 @@ class Dataset_(dataset.Dataset):
                 img2 = Image.open(img_path2).convert('RGB')
                 img1 = self.transforms_image(img1)
                 img2 = self.transforms_image(img2)
-                aud_feat1 = torch.tensor(aud_feat1).unsqueeze(dim=0)
-                pose1 = torch.tensor(pose1)
-                eye1 = torch.tensor(eye1)
+                #aud_feat1 = torch.tensor(aud_feat1)# .unsqueeze(dim=0) TODO: remove # when using AnnVI
+                # pose1 = torch.tensor(pose1)
+                # eye1 = torch.tensor(eye1)
             else:
                 idt1 = random.sample(self.idts, 1)[0]
                 index_data1 = random.sample(self.idt2idxes[idt1], 1)[0]
@@ -116,9 +116,9 @@ class Dataset_(dataset.Dataset):
                 img2 = Image.open(img_path2).convert('RGB')
                 img1 = self.transforms_image(img1)
                 img2 = self.transforms_image(img2)
-                aud_feat1 = torch.tensor(aud_feat1).unsqueeze(dim=0)
-                pose1 = torch.tensor(pose1)
-                eye1 = torch.tensor(eye1)
+                #aud_feat1 = torch.tensor(aud_feat1)# .unsqueeze(dim=0) TODO: remove # when using AnnVI
+                # pose1 = torch.tensor(pose1)
+                # eye1 = torch.tensor(eye1)
         return [aud_feat1, pose1, eye1, img1, img2]
 
 

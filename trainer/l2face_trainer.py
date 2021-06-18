@@ -11,24 +11,15 @@ from util.net_util import init_net, get_scheduler, print_networks
 from tensorboardX import SummaryWriter
 
 
-
-def mode_to_isTrain(mode):
-    isTrain = True if mode == 'train' else False
-    return isTrain
-
-
 class Trainer_():
-    DEFAULT_MODE = "train"
     def __init__(self, opt, logger):
-        self.DEFAULT_MODE = opt.mode
-
         self.opt = opt
         self.logger = logger
-        self.isTrain = mode_to_isTrain(opt.mode)
+        self.isTrain = True if opt.mode == 'train' else False
         self.device = torch.device('cuda:{}'.format(opt.gpus[0])) if opt.gpus[0] > -1 else torch.device('cpu')
         self.epoch = 0
         self.iters = 0
-        self.GpD = 1
+        self.GpD = 5
         self.GpD_iters = 0
         self.writer = SummaryWriter(logdir=opt.logdir, comment='') if opt.mode == 'train' else None
         # audio
@@ -63,8 +54,6 @@ class Trainer_():
             self.criterionL1 = torch.nn.L1Loss()
             self.init_optim()
 
-
-
     def init_optim(self):
         if self.opt.optim == 'Adam':
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=self.opt.lr, betas=(self.opt.beta1, 0.999))
@@ -91,8 +80,8 @@ class Trainer_():
         self.loss_log_D_R = 0
         self.loss_log_D_F = 0
 
-    def run(self, dataloader, epoch=None, mode=DEFAULT_MODE):
-        self.isTrain = mode_to_isTrain(mode)
+    def run(self, dataloader, epoch=None, mode="train"):
+        self.isTrain = True if mode == 'train' else False
         if self.isTrain:  # train
             self.epoch += 1
             self.reset()
@@ -103,6 +92,9 @@ class Trainer_():
                 self.set_input(train_data)
                 self.optimize_parameters()
                 self.writer.add_scalar('L1', self.loss_log_L1 / (batch_idx + 1), self.iters)
+                self.writer.add_scalar('G', self.loss_log_G / (batch_idx + 1), self.iters)
+                self.writer.add_scalar('D_Real', self.loss_log_D_R / (batch_idx + 1), self.iters)
+                self.writer.add_scalar('D_Fake', self.loss_log_D_F / (batch_idx + 1), self.iters)
                 if self.iters % self.opt.show_iters == 0:
                     self.writer.add_images('Real_Image', (self.img1 + 1) / 2, self.iters)
                     self.writer.add_images('Fake_Image', (self.img1_fake + 1) / 2, self.iters)

@@ -1,6 +1,7 @@
 from torch.utils.data import DataLoader
-from trainer import l2face_trainer
-from data import ann_dataset
+
+from incubator.APB2FaceV2.trainer import l2face_trainer
+from incubator.APB2FaceV2.data import ann_dataset
 
 
 class TrainerV2():

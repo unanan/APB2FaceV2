@@ -1,26 +1,41 @@
-### Fork from the original Repo
-##### Major modifications:
+## module: APB2FaceV2
+#### Prepare data
 ```
-inference.py
-trainv2.py
-trainerv2/*
-datav2/*
+export HRNET_MODEL_FOLDER=/root/hrnet_models
+mkdir $HRNET_MODEL_FOLDER
+aws s3 cp s3://www.talkieselfie.xyz/HRNet/HR18-WFLW.pth $HRNET_MODEL_FOLDER
+aws s3 cp s3://www.talkieselfie.xyz/HRNet/Resnet50_Final.pth $HRNET_MODEL_FOLDER
+
+export APB_VIDEO_FOLDER=/root/apb_videos
+python datav2/prepare_data.py --video_folder $APB_VIDEO_FOLDER --rf_model_path $HRNET_MODEL_FOLDER/Resnet50_Final.pth --lm_model_path $HRNET_MODEL_FOLDER/HR18-WFLW.pth
 ```
-##### Prepare data:
+**Set yourself path of "HRNET_MODEL" to save HRNet weights files.**
+**Set yourself path of "APB_VIDEO_FOLDER" to keep videos.**
 ```
-python datav2/prepare_data.py --video_folder [absolute folder path with multiple MP4s under it]
-```
-##### To run the train:
-```
-python trainv2.py
+IF YOUR AUDIO_PATH
 ```
 
+#### Train
+```
+python trainv2.py --data_root $APB_VIDEO_FOLDER/feature
+```
 
+#### Inference
+```
+python inference.py \
+--ref_video_path [path/of/video/with/source/audio] \
+--output_video_path [output/generated/video/path] \
+--apb_vcharactor_name [video/name/under/$APB_VIDEO_FOLDER] \
+--data_root $APB_VIDEO_FOLDER/feature
+```
+**To alternatively assign gpu index, add `--gpus [gpu device index]` after the `python xxx.py`**
+
+---
 ## APB2FaceV2
 
 ![Python 3.7](https://img.shields.io/badge/python-3.7-green.svg?style=plastic) ![PyTorch 1.5.1](https://img.shields.io/badge/pytorch-1.5.1-green.svg?style=plastic)
 
-Official pytorch implementation of the paper that is under review for ICASSP'21: "[APB2FACEV2: REAL-TIME AUDIO-GUIDED MULTI-FACE REENACTMENT](https://arxiv.org/pdf/2004.14569.pdf)".
+Official pytorch implementation of the paper: "[APB2FACEV2: REAL-TIME AUDIO-GUIDED MULTI-FACE REENACTMENT](https://arxiv.org/pdf/2004.14569.pdf)".
 
 ## Using the Code
 

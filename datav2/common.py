@@ -1,33 +1,49 @@
 import os
+from tqdm import tqdm
 from typing import List, Tuple
 import numpy as np
 import cv2
 from PIL import Image
 import torch
+from moviepy.editor import VideoFileClip
 import librosa
 import python_speech_features as psf
 
 from mlcandy.face_detection.valid_face_utils import get_angle_of_image
 
 
-def split_video(video_path) -> Tuple[str, list]:
-    pil_images = []
+def split_video(video_path, split_output_folder: str) -> Tuple[str, list]:
+    pil_image_paths = []
     cap = cv2.VideoCapture(video_path)
+    frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
     ret, img = cap.read()
-    while ret:
-        pil_images.append(Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)))
-        ret, img = cap.read()
-    else:
-        print("Break")
 
+    print("  ** Start to split and save frames")
+    for cnt in tqdm(range(int(frame_count))):
+        if ret:
+            pil_image = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            pil_image_path = os.path.join(split_output_folder, f"{cnt}.jpg")
+            pil_image.save(pil_image_path)
+            pil_image_paths.append(pil_image_path)
+            ret, img = cap.read()
+        else:
+            print("Break")
+            break
+
+    print("  ** Start to split and save audio")
     audio_path = os.path.splitext(video_path)[0] + ".wav"
-    os.system(f"ffmpeg -i {video_path} -ab 160k -ac 2 -ar 44100  -vn {audio_path}")
-    return audio_path, pil_images
+    if not os.path.exists(audio_path): # For audio enhancement
+        # video = VideoFileClip(video_path)
+        # audio = video.audio
+        # audio.write_audiofile(audio_path)
+        os.system(f"ffmpeg -i {video_path} -ab 160k -ac 2 -ar 44100  -vn {audio_path}")
+    return audio_path, pil_image_paths
 
 
-def extract_pose_eye(pil_images) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
+def extract_pose_eye(image_paths) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
     poses, eyes = [], []
-    for image in pil_images:
+    for image_path in tqdm(image_paths):
+        image = Image.open(image_path).convert('RGB')
         has_face, roll, pitch, yaw = get_angle_of_image(image) #TODO sequence
         if not has_face:
             raise ValueError
@@ -48,7 +64,7 @@ def extract_audio_feature(audio_path, image_num, fps, win_size, sr, n_mfcc, n_ff
     f_mfcc_all = np.concatenate((f_mfcc, f_mfcc_delta, f_mfcc_delta2), axis=0)
 
     audio_features = []
-    for cnt in range(image_num):
+    for cnt in tqdm(range(image_num)):
         c_count = int(cnt / fps * rate / hop_length)
         start_index = c_count - win_size // 2
         end_index = c_count + win_size // 2
@@ -74,12 +90,13 @@ def extract_audio_feature(audio_path, image_num, fps, win_size, sr, n_mfcc, n_ff
     return audio_features
 
 
-def extract_features(video_path: str, fps, win_size, sr, n_mfcc, n_fft, hop_length) -> Tuple[list, List[torch.Tensor], List[torch.Tensor], List[torch.Tensor]]:
-    audio_path, pil_images = split_video(video_path)
+def extract_features(audio_path, image_paths: List[str], fps, win_size, sr, n_mfcc, n_fft, hop_length) -> Tuple[List[torch.Tensor], List[torch.Tensor], List[torch.Tensor]]:
+    print("  ** Start extract pose and eye")
+    poses, eyes = extract_pose_eye(image_paths)
 
-    poses, eyes = extract_pose_eye(pil_images)
+    print("  ** Start extract audio feature")
     audio_features = extract_audio_feature(
-        audio_path, len(pil_images),
+        audio_path, len(image_paths),
         fps=fps,
         win_size=win_size,
         sr=sr,
@@ -87,4 +104,4 @@ def extract_features(video_path: str, fps, win_size, sr, n_mfcc, n_fft, hop_leng
         n_fft=n_fft,
         hop_length=hop_length)
 
-    return pil_images, audio_features, poses, eyes
+    return audio_features, poses, eyes

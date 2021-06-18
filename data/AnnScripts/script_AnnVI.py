@@ -12,7 +12,7 @@ import torch
 
 
 def split_video(video_file, label_file, out_path):
-    labels = [[float(l_) for l_ in l.strip().split()] for l in open(label_file, 'r').readlines()]
+    labels = [[float(l_) for l_ in l.strip().split()]for l in open(label_file, 'r').readlines()]
     out_path = os.path.join(out_path, 'image')
     if not os.path.exists(out_path):
         os.mkdir(out_path)
@@ -62,6 +62,13 @@ def feature_extraction_AnnVI(video_file, audio_file, label_file, out_path, img_s
     lands_all = dict()
     poses_all = dict()
     eyes_all = dict()
+
+    # l
+    # 0: name
+    # 1: original points
+    # 2-107: 106 landmarks
+    # 108-110: pose triplet (pitch yaw roll)
+    # 111-112: eye blink scores (left score, right score)
     for landmark in landmarks:
         l = landmark.strip().split()
         name = l[0]
@@ -80,6 +87,7 @@ def feature_extraction_AnnVI(video_file, audio_file, label_file, out_path, img_s
         poses_all[name.split('.')[0]] = pose
         eyes_all[name.split('.')[0]] = eye
         # land = np.array(land).astype(np.float64)
+
 
     labels = [[float(l_) for l_ in l.strip().split()] for l in open(label_file, 'r').readlines()]
     img_paths = []
@@ -193,6 +201,6 @@ def count_frames(dataroot):
 
 
 if __name__ == '__main__':
-    dataroot = '/usr/stable/apb/raw/liza/'
+    dataroot = '/media/zhangzjn/datasets/AnnTest/'
     main_AnnVI(dataroot)
     # count_frames(dataroot)

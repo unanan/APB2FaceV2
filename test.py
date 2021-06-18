@@ -10,7 +10,7 @@ if mode == 0:
 
     opt = get_opt()
     opt.data = 'AnnVI'
-    opt.data_root = '/usr/stable/apb/raw/AnnVI/feature'
+    opt.data_root = '/media/datasets/zhangzjn/Audio2Face/AnnVI/feature'
     opt.img_size = 256
     opt.resume = True
     opt.resume_name = 'AnnVI-Big'

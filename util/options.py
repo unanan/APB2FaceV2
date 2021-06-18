@@ -1,4 +1,6 @@
 import argparse
+import os
+
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -20,7 +22,7 @@ def get_opt():
 
     # data
     parser.add_argument('--data', type=str, default='AnnVI', help='AnnVI | VoxCeleb2')
-    parser.add_argument('--data_root', type=str, default="/usr/stable/apb/raw/AnnVI/feature")
+    parser.add_argument('--data_root', type=str, default='/media/datasets/zhangzjn/Audio2Face/AnnVI/feature')
     parser.add_argument('--img_size', type=int, default=256, help='image size')
     parser.add_argument('--mode', type=str, default='train', help='train | test')
     # model
@@ -54,7 +56,11 @@ def get_opt():
     parser.add_argument('--resume_name', default='', type=str, help='resume name')
     parser.add_argument('--resume_epoch', default=None, type=int, help='resume epoch')
 
+    parser.add_argument("--split_folder", default="/tmp/split", type=str, help="frames splitted from video must be saved on disk to reduce cache")
     opt = parser.parse_args()
     # modify parser
     opt.gpus = [int(dev) for dev in opt.gpus.split(',')]
+
+    os.makedirs(opt.split_folder, exist_ok=True)
+
     return opt

@@ -1,8 +1,10 @@
 import os
 import time
 import argparse
-from trainerv2.trainerv2 import TrainerV2
-from util.logger import get_logger, show_opt
+
+from incubator.APB2FaceV2.trainerv2.trainerv2 import TrainerV2
+from incubator.APB2FaceV2.util.logger import get_logger, show_opt
+
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -46,25 +48,27 @@ def get_options():
     parser.add_argument('--non_ref',    type=str2bool,  default=False,
                         help='whether use black image as the reference image')
 
-    parser.add_argument('--lr',         type=float,     default=0.0002,             help='initial learning rate for adam')
-    parser.add_argument('--lr_policy',  type=str,       default='linear',           help='linear | step | plateau | cosine')
+    parser.add_argument('--lr',             type=float, default=0.0002,         help='initial learning rate for adam')
+    parser.add_argument('--lr_policy',      type=str,   default='linear',       help='linear | step | plateau | cosine')
     parser.add_argument('--lr_decay_iters', type=int,   default=50,
                         help='multiply by a gamma every lr_decay_iters iterations')
-    parser.add_argument('--niter',      type=int,       default=30,                 help='# of iter at starting learning rate')
-    parser.add_argument('--niter_decay', type=int,      default=40,                 help='# of iter to linearly decay learning rate to zero')
-    parser.add_argument('--beta1',      type=float,     default=0.5,                help='momentum term of adam')
-    parser.add_argument('--momentum',   type=float,     default=0.9,                help='momentum term of SGD')
+    parser.add_argument('--niter',          type=int,   default=30,             help='# of iter at starting learning rate')
+    parser.add_argument('--niter_decay',    type=int,   default=40,             help='# of iter to linearly decay learning rate to zero')
+    parser.add_argument('--beta1',          type=float, default=0.5,            help='momentum term of adam')
+    parser.add_argument('--momentum',       type=float, default=0.9,            help='momentum term of SGD')
 
-    parser.add_argument('--record_every', type=int,     default=5,                  help='every # epochs to record the checkpoint once')
-    parser.add_argument('--resume', '-r', type=bool,    default=False,              help='resume')
-    parser.add_argument('--resume_name', type=str,      default='',                 help='resume name')
-    parser.add_argument('--resume_epoch', type=int,     default=None,               help='resume epoch')
+    parser.add_argument('--record_every',   type=int,   default=5,              help='every # epochs to record the checkpoint once')
+    parser.add_argument('--resume', '-r',   type=bool,  default=False,          help='resume')
+    parser.add_argument('--resume_name',    type=str,   default='',             help='resume name')
+    parser.add_argument('--resume_epoch',   type=int,   default=None,           help='resume epoch')
 
-    opt = parser.parse_args()
+    parser.add_argument("--split_folder", default="/tmp/split", type=str, help="frames splitted from video must be saved on disk to reduce cache")
+    opt, _ = parser.parse_known_args()
     # modify parser
 
     opt.gpus = [int(dev) for dev in opt.gpus.split(',')]
     os.makedirs(opt.checkpoint, exist_ok=True)
+    os.makedirs(opt.split_folder, exist_ok=True)
 
     # init checkpoint
     if opt.resume:
@@ -81,7 +85,6 @@ if __name__ == '__main__':
     opt = get_options()
     logger = get_logger(opt)
     show_opt(opt, logger)
-
 
     trainer = TrainerV2(opt, logger)
     trainer.train()
