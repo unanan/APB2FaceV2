@@ -1,4 +1,4 @@
-## module: APB2FaceV2
+
 #### Prepare data
 ```
 export APB_VIDEO_FOLDER=/root/apb_videos
